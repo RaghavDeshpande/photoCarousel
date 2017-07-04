@@ -1,0 +1,94 @@
+<!-- Load the Polymer.Element base class -->
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="my-mixin.html">
+<dom-module id="my-carousel">
+  <template>
+
+    <!-- Styles MUST be inside template -->
+    <style>
+
+      :host {
+        display: block;
+      }
+      ::slotted(:not([selected])){
+        display: none;
+      }
+      button{
+        position: absolute;
+        top: calc(50% - 20%);
+        padding: 0;
+        line-height: 40px;
+        border: none;
+        background: none;
+        color:#DDD;
+        font-size: 40px;
+        font-weight: bold;
+        opacity: 0.7;
+      }
+      button:hover,button:focus{ 
+        opacity: 1;
+      }
+      #pbutton{
+        left: 12px;
+      }
+      #nbutton{
+        right: 12px;
+      }
+      button[disabled]{
+        opacity: 0.4;
+      }
+    </style>
+
+    <slot> </slot>
+    <button id="pbutton" on-click="previous">&#x276E;</button>
+    <button id="nbutton" on-click="next">&#x276F;</button>
+  </template>
+
+  <script>
+
+    // Extend Polymer.Element base class
+    class MyCarousel extends MyMixin(Polymer.Element) {
+
+      static get is() { return 'my-carousel' }
+
+      _selectedChanged(selected, oldSelected){
+        super._selectedChanged(selected, oldSelected);
+        if(selected){
+          this.$.pbutton.disabled = !selected.previousElementSibling;
+          this.$.nbutton.disabled = !selected.nextElementSibling;
+          this._loadImg(selected);
+          this._loadImg(selected.previousElementSibling);
+          this._loadImg(selected.nextElementSibling);
+        }else{
+          this.$.pbutton.disabled = true;
+          this.$.nbutton.disabled = true;
+        }
+      }
+
+      _loadImg(img){
+        if(img && !img.src){
+          img.src = img.getAttribute('data-src');
+        }
+      }
+
+      previous(){
+        console.log("previous");
+        const elem = this.selected && this.selected.previousElementSibling;
+        if(elem){
+          this.selected = elem;
+        }
+      }
+
+      next(){
+        console.log("next");
+        const elem = this.selected && this.selected.nextElementSibling;
+        if(elem){
+          this.selected = elem;
+        }
+      }
+    }
+
+    customElements.define(MyCarousel.is, MyCarousel);
+
+  </script>
+</dom-module>
